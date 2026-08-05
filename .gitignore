@@ -1,4 +1,5 @@
 sample_submission.csv
 .venv
 submission.csv
+submission_pytorch.csv
 __pycache__

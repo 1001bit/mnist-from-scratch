@@ -4,7 +4,7 @@ import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 class Conv2D(Layer):
-    def __init__(self, in_channels, out_channels, kernel_size=3, padding=1):
+    def __init__(self, in_channels, out_channels, kernel_size, padding):
         super().__init__()
 
         fan_in = kernel_size*kernel_size * in_channels
