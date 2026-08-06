@@ -1,6 +1,6 @@
 import numpy as np
 
-class EarlyStopping:
+class EarlyStop:
     def __init__(self, patience=5, min_delta=0):
         self.patience = patience
         self.min_delta = min_delta
@@ -16,3 +16,5 @@ class EarlyStopping:
         self.counter += 1
         if self.counter >= self.patience:
             return True
+
+        return False
