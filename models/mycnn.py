@@ -4,6 +4,7 @@ from modules.flatten import *
 from modules.linear import *
 from modules.maxpool import *
 from modules.relu import *
+from modules.earlystop import *
 import numpy as np
 
 def one_hot(y, num_classes=10):
@@ -40,13 +41,15 @@ class CNN:
         logits_linear = self.forward(Xt)
         return np.argmax(logits_linear.x, axis=1)
 
-    def fit(self, Xt, yt, epochs=50, alpha=0.1, batch_size=32, verbose=0):
+    def fit(self, Xt, yt, epochs=100, alpha=0.1, batch_size=32, verbose=0):
         Xt = np.asarray(Xt, dtype=np.float32)/255.0
         yt = one_hot(yt)
         
         n = Xt.shape[0]
 
         rng = np.random.default_rng(42)
+
+        early_stopper = EarlyStopping(patience=5, min_delta=0.01)
 
         for epoch in range(epochs):
             indices = rng.permutation(n)
@@ -71,5 +74,8 @@ class CNN:
 
             if verbose and ((epoch)%verbose == 0 or epoch==0):
                 print(f"epoch {epoch+1}/{epochs}. Loss: {l/n}")
+
+            if early_stopper(l):
+                break
 
         print("done.")

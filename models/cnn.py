@@ -1,6 +1,7 @@
 import torch
 from torch import nn, optim
 import numpy as np
+from modules.earlystop import *
 
 def one_hot(y, num_classes=10):
     res = np.zeros((len(y), num_classes))
@@ -48,7 +49,7 @@ class CNN:
             logits = self.model(Xt)
             return logits.argmax(dim=1).cpu().numpy()
 
-    def fit(self, Xt, yt, epochs=50, alpha=0.1, batch_size=32, verbose=0):
+    def fit(self, Xt, yt, epochs=200, alpha=0.001, batch_size=32, verbose=0):
         self.model.train()
 
         Xt = np.asarray(Xt, dtype=np.float32)/255.0
@@ -60,6 +61,8 @@ class CNN:
         optimizer = optim.Adam(self.model.parameters(), lr=alpha)
 
         rng = np.random.default_rng(42)
+
+        early_stopper = EarlyStopping(patience=5, min_delta=0.01)
 
         for epoch in range(epochs):
             indices = rng.permutation(n)
@@ -92,7 +95,12 @@ class CNN:
 
                 l += loss.item() * len(y_batch)
 
-            if verbose and ((epoch)%verbose == 0 or epoch==0):
+            early_stop = early_stopper(l)
+
+            if verbose and ((epoch+1)%verbose == 0 or epoch==0) or early_stop:
                 print(f"epoch {epoch+1}/{epochs}. Loss: {l/n}")
+
+            if early_stop:
+                break
 
         print("done.")
